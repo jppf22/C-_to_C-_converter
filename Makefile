@@ -8,10 +8,10 @@ CXXFLAGS = -Wall -g
 TARGET = main
 
 # For deleting the target
-TARGET_DEL = main.exe
+TARGET_DEL = main
 
 # Source files
-SRCS = main.cpp file_handler.cpp tokenizer.cpp
+SRCS = source/main.cpp source/file_handler.cpp source/tokenizer.cpp
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)
@@ -29,4 +29,4 @@ $(TARGET): $(OBJS)
 
 # Clean rule to remove generated files
 clean:
-	del $(TARGET_DEL) $(OBJS)
+	rm -rf $(TARGET_DEL) $(OBJS)
