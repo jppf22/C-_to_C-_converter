@@ -2,28 +2,33 @@
 #define CUSTOM_EXCEPTIONS
 
 #include <exception>
-#include <iostream>
+#include <string>
+
+// TODO: ADD MECHANISM FOR LINE AND COLUMN SHOWCASE, AND LOCATE LINE WITHIN
+// SOURCE CODE
 
 class IO_Exception : public std::exception {
 private:
   std::string message;
+  std::string full_message;
 
 public:
-  IO_Exception(const char *msg) : message(msg) {};
-  const char *what() const throw() {
-    return ("IO_Exception: " + message).c_str();
-  }
+  IO_Exception(const char *msg)
+      : message(msg), full_message("IO_Exception: " + message) {}
+
+  const char *what() const noexcept override { return full_message.c_str(); }
 };
 
 class Tokenizer_Exception : public std::exception {
 private:
   std::string message;
+  std::string full_message;
 
 public:
-  Tokenizer_Exception(const char *msg) : message(msg) {};
-  const char *what() const throw() {
-    return ("Tokenizer_Exception: " + message).c_str();
-  }
+  Tokenizer_Exception(const char *msg)
+      : message(msg), full_message("Tokenizer_Exception: " + message) {}
+
+  const char *what() const noexcept override { return full_message.c_str(); }
 };
 
-#endif
+#endif // CUSTOM_EXCEPTIONS

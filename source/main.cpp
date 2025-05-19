@@ -33,6 +33,13 @@ int main(int argc, char *argv[]) {
         FileHandler::create_input_stream(cs_file_path);
     std::vector<Token> symbol_table =
         Tokenizer::construct_symbol_table(&input_file_stream);
+
+    // DEBUG
+    std::cout << "--------------- SYMBOL TABLE --------------\n\n";
+    for (int i = 0; i < symbol_table.size(); i++) {
+      std::cout << "\t" << i << " - " << symbol_table[i] << '\n';
+    }
+
   } catch (const IO_Exception &e) {
     std::cerr << e.what() << '\n';
   } catch (const Tokenizer_Exception &e) {

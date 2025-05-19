@@ -121,3 +121,21 @@ bool Tokenizer::is_recognised_symbol(char c) {
                     recognised_symbol_list.end(),
                     c) != recognised_symbol_list.end());
 }
+
+std::ostream &operator<<(std::ostream &os, const Token &token) {
+  std::string typeStr;
+  switch (token.type) {
+  case TokenType::Keyword:
+    typeStr = "Keyword";
+    break;
+  case TokenType::Identifier:
+    typeStr = "Identifier";
+    break;
+  case TokenType::Symbol:
+    typeStr = "Symbol";
+    break;
+  }
+  os << "Token(" << typeStr << ", \"" << token.value << "\", line "
+     << token.line << ", column " << token.column << ")";
+  return os;
+}

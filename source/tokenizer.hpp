@@ -20,4 +20,6 @@ public:
   static bool is_recognised_symbol(char c);
 };
 
+std::ostream &operator<<(std::ostream &os, const Token &token);
+
 #endif
