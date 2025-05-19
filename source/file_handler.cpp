@@ -1,8 +1,9 @@
+#include "file_handler.hpp"
 #include "custom_exceptions.hpp"
 #include <fstream>
 #include <iostream>
 
-std::ifstream create_input_stream(std::string cs_file_path) {
+std::ifstream FileHandler::create_input_stream(std::string cs_file_path) {
   std::ifstream is{cs_file_path};
 
   if (is.fail()) {
@@ -12,7 +13,7 @@ std::ifstream create_input_stream(std::string cs_file_path) {
   return is;
 }
 
-int get_input_stream_char(std::istream *is) {
+int FileHandler::get_input_stream_char(std::istream *is) {
   int c = is->get(); // returns int, either 0-255 or EOF (-1)
   if (c == EOF) {
     // EOF reached

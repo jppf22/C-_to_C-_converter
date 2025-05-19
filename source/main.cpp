@@ -29,9 +29,10 @@ int main(int argc, char *argv[]) {
   // After all checks on program call, may proceed with program logic
 
   try {
-    std::ifstream input_file_stream = create_input_stream(cs_file_path);
+    std::ifstream input_file_stream =
+        FileHandler::create_input_stream(cs_file_path);
     std::vector<Token> symbol_table =
-        construct_symbol_table(&input_file_stream);
+        Tokenizer::construct_symbol_table(&input_file_stream);
   } catch (const IO_Exception &e) {
     std::cerr << e.what() << '\n';
   } catch (const Tokenizer_Exception &e) {

@@ -14,10 +14,10 @@ struct Token {
   int column;
 };
 
-std::vector<Token> construct_symbol_table(std::istream *is);
+class Tokenizer {
+public:
+  static std::vector<Token> construct_symbol_table(std::istream *is);
+  static bool is_recognised_symbol(char c);
+};
 
-extern std::array<char, 13> recognised_symbol_list;
-extern std::array<std::string, 16> recognised_keyword_list;
-
-bool is_recognised_symbol(char c);
 #endif

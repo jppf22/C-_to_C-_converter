@@ -1,9 +1,13 @@
+#include "source/custom_exceptions.hpp"
+#include "source/file_handler.hpp"
 #include "source/tokenizer.hpp"
 #include <fstream>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <limits.h>
 #include <unistd.h>
+
+// CHANGE TO USE ACTUAL TEST FILES EXAMPLES
 
 /*
 NormalTable1 - Tests
@@ -34,7 +38,7 @@ public override bool Equals(Object other)
 
     std::istringstream is(file_contents);
 
-    std::vector<Token> symbol_table = construct_symbol_table(&is);
+    std::vector<Token> symbol_table = Tokenizer::construct_symbol_table(&is);
 
     std::vector<Token> expect_symbol_table = {
         {TokenType::Keyword, "class", 1, 1},
@@ -133,7 +137,7 @@ TEST(TokenTableTests, NormalTable2) {
   })";
 
     std::istringstream is(file_contents);
-    std::vector<Token> symbol_table = construct_symbol_table(&is);
+    std::vector<Token> symbol_table = Tokenizer::construct_symbol_table(&is);
 
     std::vector<Token> expected = {
         {TokenType::Keyword, "public", 1, 1},

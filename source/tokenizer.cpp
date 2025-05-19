@@ -17,7 +17,7 @@ std::array<std::string, 16> recognised_keyword_list = {
     "override", "new",    "void",    "int",       "string", "bool",
     "float",    "double", "get",     "set"};
 
-std::vector<Token> construct_symbol_table(std::istream *is) {
+std::vector<Token> Tokenizer::construct_symbol_table(std::istream *is) {
   std::vector<Token> symbol_table;
 
   int line = 1;
@@ -28,7 +28,7 @@ std::vector<Token> construct_symbol_table(std::istream *is) {
   bool in_method_body = false;
   int brace_depth = 0;
 
-  while ((c_as_int = get_input_stream_char(is)) != EOF) {
+  while ((c_as_int = FileHandler::get_input_stream_char(is)) != EOF) {
 
     c = static_cast<char>(c_as_int);
 
@@ -68,7 +68,7 @@ std::vector<Token> construct_symbol_table(std::istream *is) {
       std::string identifier;
       do {
         identifier += c;
-        c_as_int = get_input_stream_char(is);
+        c_as_int = FileHandler::get_input_stream_char(is);
         c = static_cast<char>(c_as_int);
         column++;
       } while ((std::isalnum(c_as_int) || c == '_') && c != EOF);
@@ -116,7 +116,7 @@ std::vector<Token> construct_symbol_table(std::istream *is) {
   return symbol_table;
 }
 
-bool is_recognised_symbol(char c) {
+bool Tokenizer::is_recognised_symbol(char c) {
   return (std::find(recognised_symbol_list.begin(),
                     recognised_symbol_list.end(),
                     c) != recognised_symbol_list.end());
