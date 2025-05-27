@@ -5,9 +5,14 @@
 #include <string>
 #include <vector>
 
+#include "code_generator.hpp"
 #include "custom_exceptions.hpp"
 #include "file_handler.hpp"
+#include "parser.hpp"
 #include "tokenizer.hpp"
+#include "validator.hpp"
+
+#define OUTPUT_DIRECTORY "output"
 
 int main(int argc, char *argv[]) {
 
@@ -33,17 +38,66 @@ int main(int argc, char *argv[]) {
         FileHandler::create_input_stream(cs_file_path);
     std::vector<Token> symbol_table =
         Tokenizer::construct_symbol_table(&input_file_stream);
+    // input_file_stream.close(); //TODO
 
-    // DEBUG
     std::cout << "--------------- SYMBOL TABLE --------------\n\n";
-    for (int i = 0; i < symbol_table.size(); i++) {
+    for (long unsigned int i = 0; i < symbol_table.size(); i++) {
       std::cout << "\t" << i << " - " << symbol_table[i] << '\n';
+    }
+    std::cout << "Symbol Table constructed!\n";
+
+    Parser parser(symbol_table);
+    std::vector<ClassNode> class_nodes = parser.parseProgram();
+
+    std::cout << "---------------- CLASS NODES ------------------\n\n";
+    for (long unsigned int i = 0; i < class_nodes.size(); i++) {
+      std::cout << i + 1 << " ------------------\n"
+                << class_nodes[i] << "\n------------------\n";
+    }
+    std::cout << "Full AST Tree constructed!\n";
+
+    std::cout << "---------------- VALIDATION ------------------\n\n";
+    Validator::ensure_valid_structure(class_nodes);
+    std::cout << "All classes valid!\n";
+
+    std::cout << "---------------- CODE GENERATION ------------------\n\n";
+
+    // Examples: add std:: before string, PascalCase, snake_case
+    for (ClassNode &class_node : class_nodes) {
+      CodeGenerator::apply_cpp_convetions(class_node);
+    }
+
+    for (ClassNode &class_node : class_nodes) {
+      auto [header_path, source_path] =
+          FileHandler::get_class_node_output_file_paths(class_node.name,
+                                                        "output");
+
+      std::ofstream header_stream =
+          FileHandler::open_output_stream(header_path);
+      CodeGenerator::generate_header(class_node, header_stream);
+      FileHandler::close_output_stream(header_stream);
+
+      std::ofstream source_stream =
+          FileHandler::open_output_stream(source_path);
+      CodeGenerator::generate_source(class_node, source_stream);
+      FileHandler::close_output_stream(source_stream);
+
+      std::cout << "Generated files: \n-" << header_path << "\n-" << source_path
+                << "\n\n";
     }
 
   } catch (const IO_Exception &e) {
     std::cerr << e.what() << '\n';
   } catch (const Tokenizer_Exception &e) {
     std::cerr << e.what() << '\n';
+  } catch (const Parser_Exception &e) {
+    std::cerr << e.what() << '\n';
+  } catch (const Validator_Exception &e) {
+    std::cerr << e.what() << '\n';
+  } catch (const Code_Generation_Exception &e) {
+    std::cerr << e.what() << '\n';
+  } catch (const std::exception &e) {
+    std::cerr << "Caught unexpected behavior: " << e.what() << '\n';
   }
 
   return 0;

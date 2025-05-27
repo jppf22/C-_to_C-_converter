@@ -11,7 +11,7 @@ TARGET = main
 TARGET_DEL = main
 
 # Source files
-SRCS = source/main.cpp source/file_handler.cpp source/tokenizer.cpp
+SRCS = source/main.cpp source/file_handler.cpp source/tokenizer.cpp source/parser.cpp source/validator.cpp source/code_generator.cpp
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)
@@ -29,4 +29,4 @@ $(TARGET): $(OBJS)
 
 # Clean rule to remove generated files
 clean:
-	rm -rf $(TARGET_DEL) $(OBJS)
+	rm -rf $(TARGET_DEL) $(OBJS) output/

@@ -1,4 +1,4 @@
-class Derived : Base
+class Derived
 {
 public Derived()
 {

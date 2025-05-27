@@ -31,4 +31,40 @@ public:
   const char *what() const noexcept override { return full_message.c_str(); }
 };
 
+class Parser_Exception : public std::exception {
+private:
+  std::string message;
+  std::string full_message;
+
+public:
+  Parser_Exception(const char *msg)
+      : message(msg), full_message("Parser_Exception: " + message) {}
+
+  const char *what() const noexcept override { return full_message.c_str(); }
+};
+
+class Validator_Exception : public std::exception {
+private:
+  std::string message;
+  std::string full_message;
+
+public:
+  Validator_Exception(const char *msg)
+      : message(msg), full_message("Validator_Exception: " + message) {}
+
+  const char *what() const noexcept override { return full_message.c_str(); }
+};
+
+class Code_Generation_Exception : public std::exception {
+private:
+  std::string message;
+  std::string full_message;
+
+public:
+  Code_Generation_Exception(const char *msg)
+      : message(msg), full_message("Code_Generation_Exception: " + message) {}
+
+  const char *what() const noexcept override { return full_message.c_str(); }
+};
+
 #endif // CUSTOM_EXCEPTIONS
