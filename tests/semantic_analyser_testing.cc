@@ -1,5 +1,9 @@
-#include "source/custom_exceptions.hpp"
-#include "source/validator.hpp"
+#include "../source/code_generator.hpp"
+#include "../source/custom_exceptions.hpp"
+#include "../source/file_handler.hpp"
+#include "../source/lexer.hpp"
+#include "../source/parser.hpp"
+#include "../source/validator.hpp"
 #include <gtest/gtest.h>
 
 // Helper functions to construct nodes with necessary fields

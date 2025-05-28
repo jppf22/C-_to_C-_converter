@@ -8,8 +8,8 @@
 
 class CodeGenerator {
 public:
-  static void generate_header(const ClassNode &class_node, std::ofstream &of);
-  static void generate_source(const ClassNode &class_node, std::ofstream &of);
+  static void generate_header(const ClassNode &class_node, std::ostream &of);
+  static void generate_source(const ClassNode &class_node, std::ostream &of);
 
 private:
   static std::string generate_modifier_string(AccessModifier access);

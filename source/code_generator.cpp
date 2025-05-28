@@ -6,7 +6,7 @@
 
 // Writes the class info into the header file
 void CodeGenerator::generate_header(const ClassNode &class_node,
-                                    std::ofstream &of) {
+                                    std::ostream &of) {
   of << "class " << class_node.name;
   if (class_node.base_class) {
     of << " : public " << *class_node.base_class;
@@ -154,13 +154,13 @@ CodeGenerator::generate_property_declarations(const PropertyNode &property) {
 
 // Writes the class info into the source file
 void CodeGenerator::generate_source(const ClassNode &class_node,
-                                    std::ofstream &of) {
+                                    std::ostream &of) {
 
   // EXTRA: These are outside project scope, but to ensure validity in case of
   // testing
   of << "#include \"" << class_node.name << ".hpp\"\n";
-  of << "#include <iostream>\n";
-  of << "#include <string>\n";
+  // of << "#include <iostream>\n";
+  // of << "#include <string>\n";
 
   of << generate_constructor_definition(class_node.name);
 

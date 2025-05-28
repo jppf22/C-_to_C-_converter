@@ -228,7 +228,6 @@ bool Parser::tryParseMethodOverride() {
 #include <string>
 #include <vector>
 
-
 std::ostream &operator<<(std::ostream &os,
                          const AccessModifier &accessModifier) {
   switch (accessModifier) {
@@ -244,7 +243,6 @@ std::ostream &operator<<(std::ostream &os,
   }
   return os;
 }
-
 
 std::ostream &operator<<(std::ostream &os, const MethodParam &methodParam) {
   os << methodParam.type << " " << methodParam.name;
@@ -270,7 +268,7 @@ std::ostream &operator<<(std::ostream &os, const MethodNode &methodNode) {
   os << ")";
   if (methodNode.is_override)
     os << " override";
-  os << " {}"; 
+  os << " {}";
   return os;
 }
 
@@ -280,7 +278,6 @@ std::ostream &operator<<(std::ostream &os, const PropertyAcessor &accessor) {
     os << " {}";
   return os;
 }
-
 
 std::ostream &operator<<(std::ostream &os, const PropertyNode &propertyNode) {
   if (propertyNode.access)
