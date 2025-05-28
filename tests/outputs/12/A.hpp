@@ -4,6 +4,6 @@ private:
 public:
     A();
     int get_x();
-    void set_x(int value); 
-    ~A();  
+    void set_x(int value);
+    ~A();
 };

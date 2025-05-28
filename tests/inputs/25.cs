@@ -1,4 +1,6 @@
 class Base { }
+class AnotherClass { }
+class YetAnotherClass { }
 
 class Derived : Base 
 { 

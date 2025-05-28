@@ -1,5 +1,5 @@
-class Base { 
+class Base {
 public:
     Base();
-    ~Base();      
+    ~Base();
 };

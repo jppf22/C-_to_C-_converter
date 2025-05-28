@@ -10,6 +10,7 @@ void Validator::ensure_valid_structure(std::vector<ClassNode> &classes) {
   }
 
   ensure_class_hierarchy(classes);
+  ensure_user_defined_types(classes);
 }
 
 void Validator::ensure_no_field_duplicate_within_class(
@@ -88,6 +89,53 @@ void Validator::ensure_class_hierarchy(std::vector<ClassNode> classes) {
                               *specific_class.base_class + "' for class " +
                               specific_class.name;
         throw Validator_Exception(message.c_str());
+      }
+    }
+  }
+}
+
+void Validator::ensure_user_defined_types(const std::vector<ClassNode>& classes) {
+
+
+  std::unordered_set<std::string> defined_class_names;
+  for (const auto& specific_class : classes) {
+    defined_class_names.insert(specific_class.name);
+  }
+
+  
+  const std::unordered_set<std::string> primitive_types = {
+    "int", "float", "double", "bool", "void", "string", "Object"
+  };
+
+  for (const auto& specific_class : classes) {
+    for (const auto& field : specific_class.fields) {
+      const std::string& type = field.type;
+      if (primitive_types.find(type) == primitive_types.end() &&
+          defined_class_names.find(type) == defined_class_names.end()) {
+        std::string msg = "Undefined field type '" + type + "' in class " + specific_class.name;
+        throw Validator_Exception(msg.c_str());
+      }
+    }
+
+    for (const auto& method : specific_class.methods) {
+      if(method.return_type.has_value()){
+        const std::string& return_type = method.return_type.value();
+        if (primitive_types.find(return_type) == primitive_types.end() &&
+            defined_class_names.find(return_type) == defined_class_names.end()) {
+          std::string msg = "Undefined return type '" + return_type + "' in method " +
+                            method.name + " of class " + specific_class.name;
+          throw Validator_Exception(msg.c_str());
+        }
+      }
+
+      for (const auto& param : method.parameters) {
+        const std::string& param_type = param.type;
+        if (primitive_types.find(param_type) == primitive_types.end() &&
+            defined_class_names.find(param_type) == defined_class_names.end()) {
+          std::string msg = "Undefined parameter type '" + param_type + "' in method " +
+                            method.name + " of class " + specific_class.name;
+          throw Validator_Exception(msg.c_str());
+        }
       }
     }
   }

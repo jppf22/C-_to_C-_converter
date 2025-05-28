@@ -2,6 +2,9 @@
 #include "custom_exceptions.hpp"
 #include <iostream>
 #include <sstream>
+#include <optional>
+#include <string>
+#include <vector>
 
 // Builder and navigation operations -----------------------------------
 
@@ -40,7 +43,7 @@ bool Parser::match(TokenType type) {
 void Parser::expectTokenValue(const std::string &value) {
   if (!match(value)) {
     throw Parser_Exception(("Expected token '" + value + "'").c_str(),
-                           lexer.get_line(), lexer.get_column());
+                           lexer.get_line_before_identifier_or_keyword(), lexer.get_column_before_identifier_or_keyword());
   }
 }
 
@@ -74,8 +77,8 @@ std::string Parser::parseIdentifier() {
   if (!match(TokenType::Identifier)) {
     std::ostringstream oss;
     oss << "Expected Identifier at char \'" << lexer.get_current_char() << '\'';
-    throw Parser_Exception(oss.str().c_str(), lexer.get_line(),
-                           lexer.get_column());
+    throw Parser_Exception(oss.str().c_str(), lexer.get_line_before_identifier_or_keyword(),
+                           lexer.get_column_before_identifier_or_keyword());
   }
   return last_token.value;
 }
@@ -110,8 +113,13 @@ void Parser::parseMemberDeclarations(ClassNode &classNode) {
         n_parameters++;
       }
       expectTokenValue(")");
-      expectTokenValue("{");
-      skipMethodBody();
+      
+      if(match("{")){
+          skipMethodBody();
+        }
+        else{
+          match(";");
+        }
 
       classNode.methods.push_back(MethodNode{
           accessModifier,
@@ -140,8 +148,16 @@ void Parser::parseMemberDeclarations(ClassNode &classNode) {
           n_parameters++;
         }
         expectTokenValue(")");
-        expectTokenValue("{");
-        skipMethodBody();
+
+        if(match("{")){
+          skipMethodBody();
+        }
+        else{
+          match(";");
+        }
+
+        // expectTokenValue("{");
+        // skipMethodBody();
 
         std::optional<std::string> opt_type = type;
 
@@ -166,7 +182,6 @@ void Parser::parseMemberDeclarations(ClassNode &classNode) {
           }
 
           if (match("{")) {
-            std::cout << current_token.value << " " << last_token.value << "\n";
             skipMethodBody();
             accessor.has_brackets = true;
           }
@@ -222,11 +237,6 @@ bool Parser::tryParseMethodOverride() {
   }
   return false;
 }
-
-#include <iostream>
-#include <optional>
-#include <string>
-#include <vector>
 
 std::ostream &operator<<(std::ostream &os,
                          const AccessModifier &accessModifier) {
@@ -313,6 +323,8 @@ std::ostream &operator<<(std::ostream &os, const ClassNode &classNode) {
 }
 
 void Parser::skipMethodBody() {
+  
+  lexer.falsify_peek_flag();
 
   if (current_token.value == "}") {
     last_token = current_token;

@@ -16,10 +16,14 @@ public:
   Token next_token();
   Token post_skip();
   Token peek_token();
+
+  void falsify_peek_flag();
   bool has_more_tokens();
 
   int get_line();
+  int get_line_before_identifier_or_keyword();
   int get_column();
+  int get_column_before_identifier_or_keyword();
   char get_current_char();
   void skipBracedBlock();
 
@@ -28,8 +32,11 @@ private:
   char current_char;
   bool has_peeked;
   Token peeked_token;
+
   int line = 1;
   int column = 0;
+  int line_before_identifier_or_keyword = 1;
+  int column_before_identifier_or_keyword = 0;
 
   void advance();
   void skip_whitespace();

@@ -24,17 +24,22 @@ set(SOURCE_FILES
   source/validator.cpp
 )
 
-# First test target
+
 add_executable(full_testing tests/full_testing.cc ${SOURCE_FILES})
 target_include_directories(full_testing PRIVATE source)
 target_link_libraries(full_testing GTest::gtest_main)
 gtest_discover_tests(full_testing)
 
-# Second test target
+
 add_executable(semantic_analyser_testing tests/semantic_analyser_testing.cc ${SOURCE_FILES})
 target_include_directories(semantic_analyser_testing PRIVATE source)
 target_link_libraries(semantic_analyser_testing GTest::gtest_main)
 gtest_discover_tests(semantic_analyser_testing)
+
+add_executable(syntax_analyser_testing tests/syntax_analyser_testing.cc ${SOURCE_FILES})
+target_include_directories(syntax_analyser_testing PRIVATE source)
+target_link_libraries(syntax_analyser_testing GTest::gtest_main)
+gtest_discover_tests(syntax_analyser_testing)
 
 target_compile_definitions(full_testing PRIVATE TEST_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
 

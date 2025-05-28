@@ -1,3 +1,7 @@
+class YetAnotherClass{ }
+class AnotherClass{ }
+
+
 class Derived
 {
 public Derived()

@@ -3,6 +3,7 @@
 #include "file_handler.hpp"
 #include <cctype>
 #include <unordered_set>
+#include <sstream>
 
 Lexer::Lexer(std::istream *input)
     : input(input), has_peeked(false), line(1), column(0) {
@@ -68,6 +69,10 @@ Token Lexer::next_token_internal() {
 }
 
 Token Lexer::parse_identifier_or_keyword() {
+
+  line_before_identifier_or_keyword = line;
+  column_before_identifier_or_keyword = column;
+
   std::string value;
   while (std::isalnum(current_char) || current_char == '_') {
     value += current_char;
@@ -82,9 +87,15 @@ Token Lexer::parse_identifier_or_keyword() {
 
 Token Lexer::parse_symbol() {
 
+  line_before_identifier_or_keyword = line;
+  column_before_identifier_or_keyword = column;
+  
   if (!is_recognize_symbol(current_char)) {
-    std::string message = "Unrecognized Symbol \'" + current_char + '\'';
-    throw Parser_Exception{message.c_str(), line, column};
+    
+    std::ostringstream oss;
+    oss << "Unrecognized Symbol \'";
+    oss << current_char << '\'';
+    throw Parser_Exception{oss.str().c_str(), line, column};
   }
 
   std::string value(1, current_char);
@@ -132,3 +143,10 @@ void Lexer::skipBracedBlock() {
 
   current_char = input->get();
 }
+
+void Lexer::falsify_peek_flag(){
+  has_peeked = false;
+}
+
+int Lexer::get_line_before_identifier_or_keyword(){return line_before_identifier_or_keyword;}
+int Lexer::get_column_before_identifier_or_keyword(){return column_before_identifier_or_keyword;}

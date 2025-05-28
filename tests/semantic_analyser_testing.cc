@@ -20,7 +20,6 @@ PropertyNode make_property(const std::string &name,
   PropertyNode p;
   p.name = name;
   p.type = type;
-  // empty accessors for simplicity
   return p;
 }
 
@@ -127,6 +126,29 @@ TEST(ValidatorTests, EnsureValidStructureNoThrowForValidInput) {
   c.methods.push_back(make_method("foo", {p1}));
 
   std::vector<ClassNode> classes = {c};
+
+  EXPECT_NO_THROW(Validator::ensure_valid_structure(classes));
+}
+
+TEST(ValidatorTests, EnsureValidStructureThrowsOnNonDefinedUserType){
+  ClassNode c = make_class("MyClass");
+  
+  // Field uses an undefined user-defined type
+  c.fields.push_back(make_field("someField", "UndefinedType"));
+
+  std::vector<ClassNode> classes = {c};
+
+  EXPECT_THROW(Validator::ensure_valid_structure(classes), Validator_Exception);
+}
+
+TEST(ValidatorTests, EnsureValidStructureNoThrowOnDefinedUserType){
+  ClassNode c = make_class("MyClass");
+  ClassNode d = make_class("AnotherClass");
+
+  // Field uses an undefined user-defined type
+  c.fields.push_back(make_field("someField", "AnotherClass"));
+
+  std::vector<ClassNode> classes = {c,d};
 
   EXPECT_NO_THROW(Validator::ensure_valid_structure(classes));
 }

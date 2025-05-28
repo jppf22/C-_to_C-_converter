@@ -53,8 +53,10 @@ void CodeGenerator::generate_header(const ClassNode &class_node,
   }
 
   for (const auto &method : class_node.methods) {
-    blocks[method.access.value_or(AccessModifier::Private)].push_back(
-        generate_method_declaration(method, class_node.name));
+    if(method.name != class_node.name){
+      blocks[method.access.value_or(AccessModifier::Private)].push_back(
+          generate_method_declaration(method, class_node.name));
+    }
   }
 
   // Public: Destructor
@@ -93,7 +95,7 @@ std::string
 CodeGenerator::generate_method_declaration(const MethodNode &method,
                                            const std::string &class_name) {
   // EXTRA: Add more special functions
-  if (method.is_override && method.name == "Equals") {
+  if (method.name == "Equals") {
     return generate_equals_declaration(class_name);
   } else {
 
@@ -105,7 +107,7 @@ CodeGenerator::generate_method_declaration(const MethodNode &method,
       oss << "void";
     }
 
-    oss << " " << method.name << "(" << generate_param_list(method.parameters)
+    oss << " " << trasform_pascal_case_name(method.name) << "(" << generate_param_list(method.parameters)
         << ");";
 
     return oss.str();
@@ -183,9 +185,8 @@ std::string
 CodeGenerator::generate_method_definition(const MethodNode &method,
                                           const std::string &class_name) {
   std::ostringstream oss;
-  if (method.is_override && method.name == "Equals") {
-    oss << "bool " << class_name << "::operator==(const " << class_name
-        << "& other) {\n    // TODO\n}\n";
+  if (method.name == "Equals") {
+    oss << generate_equals_definition(class_name);
   } else {
 
     if (method.return_type) {
@@ -194,7 +195,7 @@ CodeGenerator::generate_method_definition(const MethodNode &method,
       oss << "void";
     }
 
-    oss << " " << class_name << "::" << method.name << "("
+    oss << " " << class_name << "::" << trasform_pascal_case_name(method.name) << "("
         << generate_param_list(method.parameters) << ") {\n    "
         << METHOD_COMMENT << "\n}\n";
   }
@@ -237,7 +238,7 @@ CodeGenerator::generate_destructor_definition(const std::string &class_name) {
 std::string
 CodeGenerator::generate_equals_definition(const std::string &class_name) {
   return "bool " + class_name + "::operator==(const " + class_name +
-         "& other) {\n    " + METHOD_COMMENT + "\n}\n";
+         "& other) {\n    //TODO: implement this method\n}\n";
 }
 
 // Other Auxiliary Functions
