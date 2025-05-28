@@ -93,7 +93,6 @@ std::string
 CodeGenerator::generate_method_declaration(const MethodNode &method,
                                            const std::string &class_name) {
   // EXTRA: Add more special functions
-  // TODO: Change conditions to ensure special functions match inherited
   if (method.is_override && method.name == "Equals") {
     return generate_equals_declaration(class_name);
   } else {

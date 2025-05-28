@@ -50,9 +50,6 @@ bool Parser::isNextTokenEqualTo(const std::string &value) {
 
 // Parsing functions -----------------------------------
 
-// TODO: According to rules at least 1 class must be present, therefore if 0
-// classes are present an exception should be thrown
-
 std::vector<ClassNode> Parser::parseProgram() {
   std::vector<ClassNode> classes;
   while (!isLastToken()) {
@@ -90,7 +87,6 @@ std::optional<std::string> Parser::tryParseBaseClass() {
   return std::nullopt;
 }
 
-// TODO: ALSO MAKE IT POSSIBLE TO PARSE CONSTRUCTORS
 void Parser::parseMemberDeclarations(ClassNode &classNode) {
   while (!isNextTokenEqualTo("}") && !isLastToken()) {
     auto accessModifier = tryParseAccessModifier();
@@ -153,7 +149,6 @@ void Parser::parseMemberDeclarations(ClassNode &classNode) {
             accessModifier, opt_type, identifier, parameters, is_override});
 
       } else if (match("{")) { // Member is a Property
-        // TODO: could be further improved!!!
         std::vector<PropertyAcessor> accessors;
         int n_accesors = 0;
         while (!isNextTokenEqualTo("}")) {
@@ -233,7 +228,7 @@ bool Parser::tryParseMethodOverride() {
 #include <string>
 #include <vector>
 
-// AccessModifier
+
 std::ostream &operator<<(std::ostream &os,
                          const AccessModifier &accessModifier) {
   switch (accessModifier) {
@@ -250,13 +245,12 @@ std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
-// MethodParam
+
 std::ostream &operator<<(std::ostream &os, const MethodParam &methodParam) {
   os << methodParam.type << " " << methodParam.name;
   return os;
 }
 
-// FieldNode
 std::ostream &operator<<(std::ostream &os, const FieldNode &fieldNode) {
   if (fieldNode.access)
     os << *fieldNode.access << " ";
@@ -264,7 +258,6 @@ std::ostream &operator<<(std::ostream &os, const FieldNode &fieldNode) {
   return os;
 }
 
-// MethodNode
 std::ostream &operator<<(std::ostream &os, const MethodNode &methodNode) {
   if (methodNode.access)
     os << *methodNode.access << " ";
@@ -277,11 +270,10 @@ std::ostream &operator<<(std::ostream &os, const MethodNode &methodNode) {
   os << ")";
   if (methodNode.is_override)
     os << " override";
-  os << " {}"; // Stub body
+  os << " {}"; 
   return os;
 }
 
-// PropertyAccessor
 std::ostream &operator<<(std::ostream &os, const PropertyAcessor &accessor) {
   os << accessor.operation;
   if (accessor.has_brackets)
@@ -289,7 +281,7 @@ std::ostream &operator<<(std::ostream &os, const PropertyAcessor &accessor) {
   return os;
 }
 
-// PropertyNode
+
 std::ostream &operator<<(std::ostream &os, const PropertyNode &propertyNode) {
   if (propertyNode.access)
     os << *propertyNode.access << " ";
@@ -301,7 +293,6 @@ std::ostream &operator<<(std::ostream &os, const PropertyNode &propertyNode) {
   return os;
 }
 
-// ClassNode
 std::ostream &operator<<(std::ostream &os, const ClassNode &classNode) {
   if (classNode.access)
     os << *classNode.access << " ";

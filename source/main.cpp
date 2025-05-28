@@ -54,7 +54,6 @@ int main(int argc, char *argv[]) {
 
     std::cout << "---------------- CODE GENERATION ------------------\n\n";
 
-    // TODO: add std:: before string, PascalCase, snake_case
     for (ClassNode &class_node : class_nodes) {
       auto [header_path, source_path] =
           FileHandler::get_class_node_output_file_paths(class_node.name,

@@ -18,15 +18,14 @@ std::ifstream FileHandler::create_input_stream(std::string cs_file_path) {
 }
 
 int FileHandler::get_input_stream_char(std::istream *is) {
-  int c = is->get(); // returns int, either 0-255 or EOF (-1)
+  int c = is->get(); 
   if (c == EOF) {
-    // EOF reached
     return EOF;
   } else if (is->fail()) {
     throw IO_Exception(
         "Failed while reading a character from the input file stream");
   } else {
-    return c; // valid char (promoted to int)
+    return c; 
   }
 }
 

@@ -4,9 +4,6 @@
 #include <exception>
 #include <string>
 
-// TODO: ADD MECHANISM FOR LINE AND COLUMN SHOWCASE, AND LOCATE LINE WITHIN
-// SOURCE CODE
-
 class IO_Exception : public std::exception {
 private:
   std::string message;
@@ -57,4 +54,4 @@ public:
   const char *what() const noexcept override { return full_message.c_str(); }
 };
 
-#endif // CUSTOM_EXCEPTIONS
+#endif 
