@@ -12,7 +12,7 @@
 #include "parser.hpp"
 #include "validator.hpp"
 
-#define OUTPUT_DIRECTORY "output"
+#define OUTPUT_DIRECTORY "results"
 
 int main(int argc, char *argv[]) {
 

@@ -9,6 +9,8 @@
 
 // TODO: verify user-made datatypes actually exist
 
+// TODO: verify no duplication between properties and fields
+
 class Validator {
 public:
   static void ensure_valid_structure(std::vector<ClassNode> &classes);

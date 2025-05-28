@@ -29,4 +29,4 @@ $(TARGET): $(OBJS)
 
 # Clean rule to remove generated files
 clean:
-	rm -rf $(TARGET_DEL) $(OBJS) output/
+	rm -rf $(TARGET_DEL) $(OBJS) results/*

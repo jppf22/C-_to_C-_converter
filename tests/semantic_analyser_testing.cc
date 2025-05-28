@@ -95,7 +95,7 @@ TEST(ValidatorTests, ValidClassHierarchyDoesNotThrow) {
   ClassNode base = make_class("Base");
   ClassNode derived = make_class("Derived", "Base");
 
-  std::vector<ClassNode> classes = {base, derived};
+  std::vector<ClassNode> classes = {base, derived}; //Valid Inheritance
 
   EXPECT_NO_THROW(Validator::ensure_class_hierarchy(classes));
 }
@@ -105,7 +105,7 @@ TEST(ValidatorTests, UndefinedBaseClassThrows) {
 
   std::vector<ClassNode> classes = {derived};
 
-  EXPECT_THROW(Validator::ensure_class_hierarchy(classes), Validator_Exception);
+  EXPECT_THROW(Validator::ensure_class_hierarchy(classes), Validator_Exception); //Undefined Base Class for Inheritance
 }
 
 TEST(ValidatorTests, EnsureValidStructureThrowsOnDuplicates) {
