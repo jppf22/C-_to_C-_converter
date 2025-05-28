@@ -1,8 +1,8 @@
 #ifndef CODE_GENERATOR
 #define CODE_GENERATOR
 
+#include "lexer.hpp"
 #include "parser.hpp"
-#include "tokenizer.hpp"
 #include <fstream>
 #include <string>
 
@@ -35,6 +35,10 @@ private:
   static std::string generate_equals_definition(const std::string &class_name);
   static std::string
   generate_param_list(const std::vector<MethodParam> &params);
+
+  static std::string trasform_snake_case_name(std::string original_name);
+  static std::string trasform_pascal_case_name(std::string original_name);
+  static std::string format_type(const std::string &type);
 };
 
 #endif

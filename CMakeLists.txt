@@ -15,28 +15,13 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_executable(
-    lexical_analyser_testing
-    lexical_analyser_testing.cc
-     
-    source/tokenizer.hpp
-    source/tokenizer.cpp
-    source/file_handler.hpp
-    source/file_handler.cpp
-    source/parser.hpp
-    source/parser.cpp
-    source/code_generator.cpp
-    source/code_generator.hpp
-    source/validator.cpp
-    source/validator.hpp
-)
 
 add_executable(
   semantic_analyser_testing
   semantic_analyser_testing.cc
 
-  source/tokenizer.hpp
-  source/tokenizer.cpp
+  source/lexer.cpp
+  source/lexer.hpp
   source/file_handler.hpp
   source/file_handler.cpp
   source/parser.hpp
@@ -47,9 +32,7 @@ add_executable(
   source/validator.hpp
 )
 
-target_link_libraries(lexical_analyser_testing GTest::gtest_main)
 target_link_libraries(semantic_analyser_testing GTest::gtest_main)
 
 include(GoogleTest)
-gtest_discover_tests(lexical_analyser_testing)
 gtest_discover_tests(semantic_analyser_testing)

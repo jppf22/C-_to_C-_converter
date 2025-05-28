@@ -1,4 +1,4 @@
-#include "tokenizer.hpp"
+#include "lexer.hpp"
 #include <optional>
 #include <string>
 #include <vector>
@@ -61,12 +61,12 @@ struct ClassNode {
 
 class Parser {
 private:
-  std::vector<Token> symbol_table;
-  int num_symbol;
-  int current_symbol = 0;
+  Lexer lexer;
+  Token current_token;
+  Token last_token;
 
 public:
-  Parser(std::vector<Token> symbol_table);
+  Parser(Lexer &_lexer);
   std::vector<ClassNode> parseProgram();
   ClassNode parseClassDeclaration();
   std::optional<std::string> tryParseBaseClass();
@@ -76,12 +76,14 @@ public:
   AccessModifier parseAccessModifier();
   std::optional<AccessModifier> tryParseAccessModifier();
   bool tryParseMethodOverride();
+  std::vector<MethodParam> parseParameterList();
 
   bool isLastToken();
-  bool match(std::string str);
+  bool match(const std::string &str);
   bool match(TokenType token_type);
-  void expectTokenValue(std::string tokenValue);
-  bool isNextTokenEqualTo(std::string tokenValue);
+  void expectTokenValue(const std::string &value);
+  bool isNextTokenEqualTo(const std::string &value);
+  void skipMethodBody();
 };
 
 std::ostream &operator<<(std::ostream &os, const ClassNode &classNode);

@@ -8,8 +8,8 @@
 #include "code_generator.hpp"
 #include "custom_exceptions.hpp"
 #include "file_handler.hpp"
+#include "lexer.hpp"
 #include "parser.hpp"
-#include "tokenizer.hpp"
 #include "validator.hpp"
 
 #define OUTPUT_DIRECTORY "output"
@@ -36,17 +36,9 @@ int main(int argc, char *argv[]) {
   try {
     std::ifstream input_file_stream =
         FileHandler::create_input_stream(cs_file_path);
-    std::vector<Token> symbol_table =
-        Tokenizer::construct_symbol_table(&input_file_stream);
-    // input_file_stream.close(); //TODO
 
-    std::cout << "--------------- SYMBOL TABLE --------------\n\n";
-    for (long unsigned int i = 0; i < symbol_table.size(); i++) {
-      std::cout << "\t" << i << " - " << symbol_table[i] << '\n';
-    }
-    std::cout << "Symbol Table constructed!\n";
-
-    Parser parser(symbol_table);
+    Lexer lexer(&input_file_stream);
+    Parser parser(lexer);
     std::vector<ClassNode> class_nodes = parser.parseProgram();
 
     std::cout << "---------------- CLASS NODES ------------------\n\n";
@@ -62,11 +54,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "---------------- CODE GENERATION ------------------\n\n";
 
-    // Examples: add std:: before string, PascalCase, snake_case
-    for (ClassNode &class_node : class_nodes) {
-      CodeGenerator::apply_cpp_convetions(class_node);
-    }
-
+    // TODO: add std:: before string, PascalCase, snake_case
     for (ClassNode &class_node : class_nodes) {
       auto [header_path, source_path] =
           FileHandler::get_class_node_output_file_paths(class_node.name,
@@ -87,8 +75,6 @@ int main(int argc, char *argv[]) {
     }
 
   } catch (const IO_Exception &e) {
-    std::cerr << e.what() << '\n';
-  } catch (const Tokenizer_Exception &e) {
     std::cerr << e.what() << '\n';
   } catch (const Parser_Exception &e) {
     std::cerr << e.what() << '\n';

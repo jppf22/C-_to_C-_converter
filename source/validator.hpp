@@ -7,6 +7,8 @@
 // TODO: Check if override actually overrides something (Verify all methods
 // inherited and that override is equal to the signature of any)
 
+// TODO: verify user-made datatypes actually exist
+
 class Validator {
 public:
   static void ensure_valid_structure(std::vector<ClassNode> &classes);

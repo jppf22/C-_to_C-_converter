@@ -4,8 +4,6 @@
 
 #define METHOD_COMMENT "//TODO: implement this method"
 
-
-
 // Writes the class info into the header file
 void CodeGenerator::generate_header(const ClassNode &class_node,
                                     std::ofstream &of) {
@@ -42,8 +40,9 @@ void CodeGenerator::generate_header(const ClassNode &class_node,
          prop.access.value() == AccessModifier::Public) ||
         !prop.access.has_value()) {
       FieldNode prop_field_node{AccessModifier::Public, prop.type, prop.name};
-      blocks[AccessModifier::Public].push_back(generate_field(prop_field_node));
       blocks[AccessModifier::Private].push_back(
+          generate_field(prop_field_node));
+      blocks[AccessModifier::Public].push_back(
           generate_property_declarations(prop));
     } else {
       blocks[prop.access.value()].push_back(
@@ -86,7 +85,8 @@ CodeGenerator::generate_destructor_declaration(const std::string &class_name) {
 }
 
 std::string CodeGenerator::generate_field(const FieldNode &field) {
-  return field.type + " " + field.name + ";";
+  return format_type(field.type) + " " + trasform_pascal_case_name(field.name) +
+         ";";
 }
 
 std::string
@@ -101,7 +101,7 @@ CodeGenerator::generate_method_declaration(const MethodNode &method,
     std::ostringstream oss;
 
     if (method.return_type.has_value()) {
-      oss << method.return_type.value();
+      oss << format_type(method.return_type.value());
     } else {
       oss << "void";
     }
@@ -122,7 +122,7 @@ std::string
 CodeGenerator::generate_param_list(const std::vector<MethodParam> &params) {
   std::ostringstream oss;
   for (size_t i = 0; i < params.size(); i++) {
-    oss << params[i].type << " " << params[i].name;
+    oss << format_type(params[i].type) << " " << params[i].name;
     if (i + 1 < params.size())
       oss << ", ";
   }
@@ -132,8 +132,22 @@ CodeGenerator::generate_param_list(const std::vector<MethodParam> &params) {
 std::string
 CodeGenerator::generate_property_declarations(const PropertyNode &property) {
   std::ostringstream oss;
-  oss << property.type << " get_" << property.name << "();\n";
-  oss << "void set_" << property.name << "(" << property.type << " value);";
+
+  int count = 0;
+  for (const auto &accessor : property.accessors) {
+    if (count) {
+      oss << "\n    ";
+    }
+    if (accessor.operation == "get") {
+      oss << format_type(property.type) << " get_"
+          << trasform_pascal_case_name(property.name) << "();";
+    } else if (accessor.operation == "set") {
+      oss << "void set_" << trasform_pascal_case_name(property.name) << "("
+          << format_type(property.type) << " value);";
+    }
+    count++;
+  }
+
   return oss.str();
 }
 
@@ -142,6 +156,13 @@ CodeGenerator::generate_property_declarations(const PropertyNode &property) {
 // Writes the class info into the source file
 void CodeGenerator::generate_source(const ClassNode &class_node,
                                     std::ofstream &of) {
+
+  // EXTRA: These are outside project scope, but to ensure validity in case of
+  // testing
+  of << "#include \"" << class_node.name << ".hpp\"\n";
+  of << "#include <iostream>\n";
+  of << "#include <string>\n";
+
   of << generate_constructor_definition(class_node.name);
 
   for (const auto &prop : class_node.properties) {
@@ -169,7 +190,7 @@ CodeGenerator::generate_method_definition(const MethodNode &method,
   } else {
 
     if (method.return_type) {
-      oss << method.return_type.value();
+      oss << format_type(method.return_type.value());
     } else {
       oss << "void";
     }
@@ -185,10 +206,20 @@ std::string
 CodeGenerator::generate_property_definitions(const PropertyNode &property,
                                              const std::string &class_name) {
   std::ostringstream oss;
-  oss << property.type << " " << class_name << "::get_" << property.name
-      << "() {\n    " << METHOD_COMMENT << "\n}\n";
-  oss << "void " << class_name << "::set_" << property.name << "("
-      << property.type << " value) {\n    " << METHOD_COMMENT << "\n}\n";
+
+  for (const auto &accessor : property.accessors) {
+    if (accessor.operation == "get") {
+      oss << format_type(property.type) << " " << class_name << "::get_"
+          << trasform_pascal_case_name(property.name) << "() {\n    "
+          << METHOD_COMMENT << "\n}\n";
+    } else if (accessor.operation == "set") {
+      oss << "void " << class_name << "::set_"
+          << trasform_pascal_case_name(property.name) << "("
+          << format_type(property.type) << " value) {\n    " << METHOD_COMMENT
+          << "\n}\n";
+    }
+  }
+
   return oss.str();
 }
 
@@ -222,4 +253,49 @@ std::string CodeGenerator::generate_modifier_string(AccessModifier access) {
     return "protected";
   }
   return "private";
+}
+
+std::string CodeGenerator::trasform_snake_case_name(std::string original_name) {
+  std::ostringstream oss;
+  bool capitalize_next = true;
+
+  for (char ch : original_name) {
+    if (ch == '_') {
+      capitalize_next = true;
+    } else {
+      if (capitalize_next) {
+        oss << static_cast<char>(std::toupper(ch));
+        capitalize_next = false;
+      } else {
+        oss << ch;
+      }
+    }
+  }
+
+  return oss.str(); // Converts snake_case to PascalCase
+}
+
+std::string
+CodeGenerator::trasform_pascal_case_name(std::string original_name) {
+  std::ostringstream oss;
+
+  for (size_t i = 0; i < original_name.size(); ++i) {
+    char ch = original_name[i];
+    if (std::isupper(ch)) {
+      if (i != 0)
+        oss << '_';
+      oss << static_cast<char>(std::tolower(ch));
+    } else {
+      oss << ch;
+    }
+  }
+
+  return oss.str(); // Converts PascalCase to snake_case
+}
+
+std::string CodeGenerator::format_type(const std::string &type) {
+  if (type == "string") {
+    return "std::string";
+  }
+  return type;
 }

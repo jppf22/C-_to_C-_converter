@@ -11,7 +11,7 @@ TARGET = main
 TARGET_DEL = main
 
 # Source files
-SRCS = source/main.cpp source/file_handler.cpp source/tokenizer.cpp source/parser.cpp source/validator.cpp source/code_generator.cpp
+SRCS = source/main.cpp source/file_handler.cpp source/lexer.cpp source/parser.cpp source/validator.cpp source/code_generator.cpp
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)

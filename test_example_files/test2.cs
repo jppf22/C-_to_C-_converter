@@ -1,4 +1,4 @@
-public class User : Person
+public class User 
 {
     private int id;
     protected string email;

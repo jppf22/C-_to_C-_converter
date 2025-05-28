@@ -1,44 +1,51 @@
 #include "parser.hpp"
 #include "custom_exceptions.hpp"
+#include <iostream>
+#include <sstream>
 
 // Builder and navigation operations -----------------------------------
 
-Parser::Parser(std::vector<Token> symbol_table) {
-  this->symbol_table = symbol_table;
-  this->num_symbol = symbol_table.size();
+Parser::Parser(Lexer &_lexer) : lexer(_lexer) {
+  current_token = lexer.next_token();
+  last_token = current_token;
 }
 
-bool Parser::isLastToken() { return current_symbol >= num_symbol; }
+bool Parser::isLastToken() {
+  return current_token.type == TokenType::EndOfFile;
+}
 
-bool Parser::match(std::string str) {
-  if (!isLastToken() && symbol_table[current_symbol].value == str) {
-    current_symbol++;
+bool Parser::match(const std::string &value) {
+
+  // std::cout << "CURRENT: " << current_token.value << "\tMATCH: " << value <<
+  // '\n';
+
+  if (current_token.value == value) {
+    last_token = current_token;
+    current_token = lexer.next_token();
     return true;
   }
   return false;
 }
 
-// REMEBER: MATCH ONLY ADVANCES COUNTER IF MATCH OCCURS
-bool Parser::match(TokenType token_type) {
-  if (!isLastToken() && symbol_table[current_symbol].type == token_type) {
-    current_symbol++;
+bool Parser::match(TokenType type) {
+
+  if (current_token.type == type) {
+    last_token = current_token;
+    current_token = lexer.next_token();
     return true;
   }
   return false;
 }
 
-void Parser::expectTokenValue(std::string tokenValue) {
-  if (!match(tokenValue)) {
-    std::string message = "Expected token \'" + tokenValue + "\'";
-    throw Parser_Exception(message.c_str());
+void Parser::expectTokenValue(const std::string &value) {
+  if (!match(value)) {
+    throw Parser_Exception(("Expected token '" + value + "'").c_str(),
+                           lexer.get_line(), lexer.get_column());
   }
 }
 
-bool Parser::isNextTokenEqualTo(std::string tokenValue) {
-  if (!isLastToken() && symbol_table[current_symbol].value == tokenValue) {
-    return true;
-  }
-  return false;
+bool Parser::isNextTokenEqualTo(const std::string &value) {
+  return current_token.value == value;
 }
 
 // Parsing functions -----------------------------------
@@ -68,9 +75,12 @@ ClassNode Parser::parseClassDeclaration() {
 
 std::string Parser::parseIdentifier() {
   if (!match(TokenType::Identifier)) {
-    throw Parser_Exception("Expected Identifier");
+    std::ostringstream oss;
+    oss << "Expected Identifier at char \'" << lexer.get_current_char() << '\'';
+    throw Parser_Exception(oss.str().c_str(), lexer.get_line(),
+                           lexer.get_column());
   }
-  return symbol_table[current_symbol - 1].value;
+  return last_token.value;
 }
 
 std::optional<std::string> Parser::tryParseBaseClass() {
@@ -81,18 +91,14 @@ std::optional<std::string> Parser::tryParseBaseClass() {
 }
 
 // TODO: ALSO MAKE IT POSSIBLE TO PARSE CONSTRUCTORS
-// TODO: Accessors on properties may have "method bodies", which should also be
-// ignored on the tokenizer
 void Parser::parseMemberDeclarations(ClassNode &classNode) {
-  while (!isNextTokenEqualTo("}")) {
+  while (!isNextTokenEqualTo("}") && !isLastToken()) {
     auto accessModifier = tryParseAccessModifier();
     bool is_override = tryParseMethodOverride();
 
-    if (!isLastToken() &&
-        symbol_table[current_symbol].type == TokenType::Identifier &&
-        symbol_table[current_symbol].value == classNode.name &&
-        symbol_table[current_symbol + 1].value ==
-            "(") { // Member is a constructor
+    if (!isLastToken() && current_token.type == TokenType::Identifier &&
+        current_token.value == classNode.name &&
+        lexer.peek_token().value == "(") { // Member is a constructor
 
       std::string identifier = parseIdentifier(); // class name (constructor)
       match("(");
@@ -109,7 +115,7 @@ void Parser::parseMemberDeclarations(ClassNode &classNode) {
       }
       expectTokenValue(")");
       expectTokenValue("{");
-      expectTokenValue("}");
+      skipMethodBody();
 
       classNode.methods.push_back(MethodNode{
           accessModifier,
@@ -139,7 +145,7 @@ void Parser::parseMemberDeclarations(ClassNode &classNode) {
         }
         expectTokenValue(")");
         expectTokenValue("{");
-        expectTokenValue("}");
+        skipMethodBody();
 
         std::optional<std::string> opt_type = type;
 
@@ -160,11 +166,13 @@ void Parser::parseMemberDeclarations(ClassNode &classNode) {
           } else {
             throw Parser_Exception(
                 "Unsupported acessor operation - only \'get\' "
-                "and \'set\' are currently supported");
+                "and \'set\' are currently supported",
+                lexer.get_line(), lexer.get_column());
           }
 
           if (match("{")) {
-            expectTokenValue("}");
+            std::cout << current_token.value << " " << last_token.value << "\n";
+            skipMethodBody();
             accessor.has_brackets = true;
           }
 
@@ -178,24 +186,27 @@ void Parser::parseMemberDeclarations(ClassNode &classNode) {
         classNode.properties.push_back(
             PropertyNode{accessModifier, type, identifier, accessors});
       } else {
-        throw Parser_Exception("Expected Member Declaration");
+        throw Parser_Exception("Expected Member Declaration", lexer.get_line(),
+                               lexer.get_column());
       }
     }
   }
 }
 
 std::string Parser::parseType() {
-  if (match(TokenType::Identifier) || match("void") || match("int") ||
-      match("float") || match("double") || match("bool") || match("string")) {
-    return symbol_table[current_symbol - 1].value;
+  if (match("void") || match("int") || match("float") || match("double") ||
+      match("bool") || match("string") || match(TokenType::Identifier)) {
+    return last_token.value;
   }
-  throw Parser_Exception("Expected a Type");
+  throw Parser_Exception("Expected a Type", lexer.get_line(),
+                         lexer.get_column());
 }
 
 AccessModifier Parser::parseAccessModifier() {
   auto modifier = tryParseAccessModifier();
   if (!modifier)
-    throw Parser_Exception("Expected Access Modifier");
+    throw Parser_Exception("Expected Access Modifier", lexer.get_line(),
+                           lexer.get_column());
   return *modifier;
 }
 
@@ -311,4 +322,17 @@ std::ostream &operator<<(std::ostream &os, const ClassNode &classNode) {
 
   os << "};";
   return os;
+}
+
+void Parser::skipMethodBody() {
+
+  if (current_token.value == "}") {
+    last_token = current_token;
+    current_token = lexer.next_token();
+    return;
+  }
+
+  lexer.skipBracedBlock();
+  last_token = Token{TokenType::Symbol, "}"};
+  current_token = lexer.next_token();
 }
